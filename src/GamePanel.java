@@ -1,13 +1,18 @@
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener{
 	final int MENU = 0;
@@ -19,6 +24,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener{
 	Timer frameDraw;
 	Rocketship rocket = new Rocketship(250,700,50,50);
 	ObjectManager manager;
+	BufferedImage space;
+	Timer alienSpawn;
+	
 
 	GamePanel(){
 		titleFont = new Font("Arial", Font.PLAIN, 48);
@@ -26,6 +34,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener{
 		frameDraw = new Timer(1000/60, this);
 		frameDraw.start();
 		manager = new ObjectManager(rocket);
+		try {
+			space = ImageIO.read(this.getClass().getResourceAsStream("space.png"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	void startGame(){
+		alienSpawn = new Timer(1000 , manager);
+	    alienSpawn.start();
 	}
 
 	@Override
@@ -58,8 +77,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener{
 		g.drawString("Press SPACE for instructions", 100, 500);
 	}
 	void drawGameState(Graphics g) {  
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, LeagueInvaders.WIDTH, LeagueInvaders.HEIGHT);
+		g.drawImage(space, 0, 0, LeagueInvaders.WIDTH, LeagueInvaders.HEIGHT, null);
 		manager.draw(g);
 	}
 	void drawEndState(Graphics g)  {  
@@ -98,6 +116,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener{
 				currentState = MENU;
 			} else {
 				currentState++;
+				if(currentState==GAME) {
+					startGame();
+				}
+				if(currentState==END) {
+				alienSpawn.stop();
+				}
 			}
 
 		}   
@@ -105,6 +129,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener{
 			if(rocket.y>0){
 				rocket.up();	
 			}
+		}
+		if (e.getKeyCode()==KeyEvent.VK_SPACE) {
+			if(currentState==GAME) {
+				manager.addProjectile(rocket.getProjectile());
+			}	
 		}
 		if (e.getKeyCode()==KeyEvent.VK_DOWN) {
 			if(rocket.y<712){

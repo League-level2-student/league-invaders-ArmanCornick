@@ -16,6 +16,22 @@ public class ObjectManager implements ActionListener {
 		aliens = new ArrayList<Alien>();
 	}
 
+	void checkCollision() {
+		for(int i=0;i<aliens.size();i++) {
+			if(rocket2.collisionBox.intersects((aliens.get(i)).collisionBox)==true) {
+				aliens.get(i).isActive=false;
+			}
+			if((aliens.get(i)).y>(LeagueInvaders.HEIGHT)) {
+				(aliens.get(i)).isActive=false;	
+			}
+		}
+		for(int q=0;q<projectiles.size();q++) {
+			if((projectiles.get(q)).collisionBox.intersects((aliens.get(q)).collisionBox)==true) {
+				projectiles.get(q).isActive=false;
+			}
+		}
+	}
+
 	void addProjectile(Projectile e) {
 		projectiles.add(e);
 	}
@@ -29,6 +45,8 @@ public class ObjectManager implements ActionListener {
 			if((aliens.get(i)).y>(LeagueInvaders.HEIGHT)) {
 				(aliens.get(i)).isActive=false;
 			}
+			checkCollision();
+			purgeObjects();
 		}
 		for(int i=0;i<projectiles.size();i++) {
 			(projectiles.get(i)).update();
